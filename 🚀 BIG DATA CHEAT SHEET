@@ -1,0 +1,1397 @@
+🚀 BIG DATA CHEAT SHEET
+1. Big Data Fundamentals
+What is Big Data?
+
+Big Data refers to datasets that are too large, fast, or complex for traditional data-processing systems.
+
+5 V's of Big Data
+V	Meaning	Example
+Volume	Huge amount of data	TB/PB
+Velocity	Speed of data generation	IoT sensors
+Variety	Different data formats	JSON, CSV, images
+Veracity	Data reliability/quality	Noisy sensor data
+Value	Useful information extracted	Business insights
+Types of data
+Structured
+   ↓
+Tables, SQL databases
+
+Semi-structured
+   ↓
+JSON, XML, logs
+
+Unstructured
+   ↓
+Images, videos, audio, documents
+2. Traditional vs Big Data
+Traditional system
+Data
+ ↓
+Single server
+ ↓
+Processing
+ ↓
+Result
+Big Data system
+                 Huge Dataset
+                     ↓
+              Distributed Storage
+                     ↓
+        -----------------------------
+        |            |              |
+      Node 1        Node 2         Node 3
+        |            |              |
+        -------- Parallel ----------
+                     ↓
+                  Result
+Key idea
+
+Big Data = distribute storage + distribute computation
+
+3. Hadoop Ecosystem
+
+The classic Hadoop ecosystem:
+
+                 HADOOP
+                   |
+      ----------------------------
+      |            |             |
+     HDFS         YARN        MapReduce
+      |            |             |
+ Storage       Resource       Processing
+               Manager
+
+Other ecosystem tools:
+
+Hive       → SQL/Data Warehouse
+Pig        → Data processing
+HBase      → NoSQL database
+Sqoop      → RDBMS ↔ Hadoop
+Flume      → Log/data ingestion
+Oozie      → Workflow scheduling
+Kafka      → Streaming/data ingestion
+Spark      → Fast distributed processing
+4. HDFS
+
+HDFS = Hadoop Distributed File System
+
+Used for distributed storage.
+
+Instead of storing:
+
+bigfile.csv
+
+on one machine:
+
+Server 1
+   ↓
+bigfile.csv
+
+HDFS splits the file into blocks:
+
+File
+ |
+ +---- Block 1
+ +---- Block 2
+ +---- Block 3
+ +---- Block 4
+
+and distributes them across machines.
+
+HDFS architecture
+             NameNode
+                |
+        -----------------
+        |       |       |
+    DataNode DataNode DataNode
+NameNode
+
+Stores metadata:
+
+File names
+Directory structure
+Block locations
+Permissions
+DataNode
+
+Stores the actual blocks.
+
+Important
+NameNode → Metadata
+DataNode → Actual data
+5. HDFS Replication
+
+HDFS normally maintains multiple copies of blocks for fault tolerance.
+
+Example:
+
+Block A
+
+DataNode 1 → A
+DataNode 2 → A
+DataNode 3 → A
+
+If Node 1 fails:
+
+A still exists
+   ↓
+Node 2 / Node 3
+
+This is fault tolerance.
+
+6. Hadoop YARN
+
+YARN = Yet Another Resource Negotiator
+
+Responsible for managing cluster resources and applications.
+
+Main components:
+
+ResourceManager
+       |
+       ↓
+Application
+       |
+       ↓
+ApplicationMaster
+       |
+       ↓
+NodeManagers
+ResourceManager
+
+Cluster-wide resource manager.
+
+NodeManager
+
+Runs on individual worker nodes.
+
+ApplicationMaster
+
+Manages one application/job.
+
+7. MapReduce
+
+MapReduce is a distributed processing model.
+
+Basic architecture:
+
+Input
+  ↓
+MAP
+  ↓
+Shuffle
+  ↓
+REDUCE
+  ↓
+Output
+
+Example:
+
+Input:
+
+apple
+banana
+apple
+apple
+banana
+Map
+apple  → (apple, 1)
+banana → (banana, 1)
+apple  → (apple, 1)
+Shuffle
+apple  → [1,1,1]
+banana → [1,1]
+Reduce
+apple  → 3
+banana → 2
+8. Apache Spark
+
+Spark = distributed data-processing engine
+
+Spark can process:
+
+Batch data
+Streaming data
+SQL
+Machine Learning
+Graph processing
+
+Main components:
+
+              SPARK
+                |
+     -----------------------
+     |      |       |      |
+   Spark   Spark   MLlib  GraphX
+    SQL  Streaming
+9. Spark Architecture
+              Driver
+                |
+          SparkContext /
+          SparkSession
+                |
+       -------------------
+       |        |        |
+   Executor Executor Executor
+       |        |        |
+   Tasks     Tasks     Tasks
+Driver
+
+Controls the application.
+
+Executor
+
+Performs computation.
+
+Task
+
+Smallest unit of work sent to an executor.
+
+10. SparkSession
+
+Modern PySpark code normally starts with:
+
+from pyspark.sql import SparkSession
+
+spark = SparkSession.builder \
+    .appName("MyApp") \
+    .getOrCreate()
+
+Think:
+
+SparkSession
+     ↓
+Entry point into Spark
+11. RDD
+
+RDD = Resilient Distributed Dataset
+
+Properties:
+
+Distributed
+Immutable
+Fault tolerant
+Parallel processing
+Lazy evaluation
+
+Create RDD:
+
+rdd = spark.sparkContext.parallelize(
+    [1, 2, 3, 4, 5]
+)
+
+Read:
+
+rdd.collect()
+12. RDD Transformations
+
+Transformations create a new RDD.
+
+map()
+rdd.map(lambda x: x * 2)
+
+Input:
+
+1 2 3 4
+
+Output:
+
+2 4 6 8
+filter()
+rdd.filter(lambda x: x > 2)
+1 2 3 4
+      ↓
+3 4
+flatMap()
+
+map():
+
+rdd.map(lambda x: [x, x])
+
+produces nested results conceptually:
+
+[1,1]
+[2,2]
+[3,3]
+
+flatMap():
+
+rdd.flatMap(lambda x: [x, x])
+
+produces:
+
+1
+1
+2
+2
+3
+3
+Remember:
+map     → one input → one output
+flatMap → one input → zero/many outputs
+13. More RDD Transformations
+map()
+filter()
+flatMap()
+distinct()
+sample()
+union()
+intersection()
+subtract()
+groupByKey()
+reduceByKey()
+sortBy()
+14. RDD Actions
+
+Actions trigger execution.
+
+collect()
+count()
+take()
+first()
+reduce()
+saveAsTextFile()
+Important distinction
+TRANSFORMATION
+     ↓
+Creates RDD
+     ↓
+Lazy
+
+ACTION
+     ↓
+Triggers execution
+     ↓
+Returns result
+
+Example:
+
+rdd.filter(lambda x: x > 10)
+
+Nothing is actually returned to you.
+
+But:
+
+rdd.filter(lambda x: x > 10).collect()
+
+executes the operation.
+
+15. Lazy Evaluation
+
+One of Spark's most important concepts.
+
+rdd \
+    .filter(lambda x: x > 10) \
+    .map(lambda x: x * 2)
+
+Spark builds a plan.
+
+It doesn't immediately execute everything.
+
+Then:
+
+.collect()
+
+triggers execution.
+
+filter()
+   ↓
+map()
+   ↓
+collect()
+   ↓
+EXECUTE
+16. DataFrame
+
+A Spark DataFrame is a distributed table.
+
+Example:
+
+data = [
+    ("Sohan", 25),
+    ("Rahul", 28)
+]
+
+df = spark.createDataFrame(
+    data,
+    ["name", "age"]
+)
+
+Looks like:
+
++------+---+
+| name |age|
++------+---+
+|Sohan |25 |
+|Rahul |28 |
++------+---+
+17. DataFrame Operations
+Select
+df.select("name")
+Filter
+df.filter(df.age > 25)
+Where
+df.where(df.age > 25)
+Show
+df.show()
+Count
+df.count()
+Describe
+df.describe().show()
+18. Spark SQL
+
+Register DataFrame:
+
+df.createOrReplaceTempView("employees")
+
+Then:
+
+spark.sql("""
+    SELECT *
+    FROM employees
+""").show()
+
+Filtering:
+
+spark.sql("""
+    SELECT name, salary
+    FROM employees
+    WHERE salary > 50000
+""")
+
+So:
+
+PySpark API
+     +
+Spark SQL
+     ↓
+Same Spark engine
+19. DataFrame vs RDD
+RDD	DataFrame
+Low-level	Higher-level
+No schema required	Schema
+More control	Easier
+Less optimized	Highly optimized
+Object-oriented data	Tabular data
+Usually more code	Less code
+Practical rule
+
+For most modern data-engineering tasks:
+
+DataFrame
+   ↓
+preferred
+
+Use RDDs when you specifically need low-level control or operations that don't fit naturally into the DataFrame API.
+
+20. Schema
+
+Example:
+
+from pyspark.sql.types import *
+
+schema = StructType([
+    StructField("name", StringType(), True),
+    StructField("age", IntegerType(), True)
+])
+
+Common types:
+
+StringType()
+IntegerType()
+LongType()
+DoubleType()
+FloatType()
+BooleanType()
+DateType()
+TimestampType()
+ArrayType()
+MapType()
+StructType()
+21. Reading Data
+CSV
+df = spark.read.csv(
+    "data.csv",
+    header=True,
+    inferSchema=True
+)
+JSON
+df = spark.read.json("data.json")
+Parquet
+df = spark.read.parquet("data.parquet")
+ORC
+df = spark.read.orc("data.orc")
+22. Writing Data
+df.write.csv("output")
+df.write.parquet("output")
+df.write.json("output")
+
+Common modes:
+
+.mode("overwrite")
+.mode("append")
+.mode("ignore")
+.mode("error")
+
+Example:
+
+df.write \
+  .mode("overwrite") \
+  .parquet("output")
+23. CSV vs Parquet
+CSV	Parquet
+Text format	Columnar format
+Larger	Usually smaller
+Slower analytical queries	Faster analytical queries
+Weak schema support	Strong schema
+Human-readable	Not human-readable
+Simple	Optimized
+
+For analytics:
+
+CSV
+ ↓
+easy interchange
+
+Parquet
+ ↓
+analytics/data engineering
+24. GroupBy
+
+Example:
+
+df.groupBy("department").count()
+
+Conceptually:
+
+IT       100
+HR        50
+Finance   80
+25. Aggregation
+from pyspark.sql.functions import *
+
+df.groupBy("department").agg(
+    avg("salary").alias("avg_salary"),
+    max("salary").alias("max_salary"),
+    min("salary").alias("min_salary")
+)
+
+Common functions:
+
+sum()
+avg()
+min()
+max()
+count()
+countDistinct()
+26. Joins
+Inner join
+df1.join(
+    df2,
+    df1.id == df2.id,
+    "inner"
+)
+
+Types:
+
+inner
+left
+right
+full
+cross
+left_semi
+left_anti
+Mental model
+Employees
+     +
+Departments
+     ↓
+JOIN
+     ↓
+Combined data
+27. Window Functions
+
+Used for calculations across related rows.
+
+Example:
+
+from pyspark.sql.window import Window
+
+window = Window.partitionBy(
+    "department"
+).orderBy(
+    "salary"
+)
+
+Then:
+
+df.withColumn(
+    "rank",
+    rank().over(window)
+)
+
+Common functions:
+
+row_number()
+rank()
+dense_rank()
+lag()
+lead()
+28. Partitioning
+
+Spark divides data into partitions.
+
+Dataset
+   ↓
+-------------------------
+| Part 1 | Part 2 | Part 3 |
+-------------------------
+
+Each partition can be processed independently.
+
+Check:
+
+rdd.getNumPartitions()
+
+Change partitions:
+
+rdd.repartition(4)
+
+or:
+
+rdd.coalesce(2)
+29. repartition() vs coalesce()
+repartition
+df.repartition(10)
+
+Can increase/decrease partitions.
+
+Usually involves a shuffle.
+
+coalesce
+df.coalesce(2)
+
+Usually used to reduce partitions with less movement of data.
+
+Remember:
+
+repartition → expensive shuffle
+coalesce    → mainly reduce partitions
+30. Shuffle
+
+One of the most important performance concepts.
+
+Suppose:
+
+df.groupBy("department").count()
+
+Data may need to move between executors so that all rows belonging to the same department are brought together.
+
+Executor 1 ──────┐
+Executor 2 ──────┼──→ Shuffle → Group
+Executor 3 ──────┘
+
+This data movement is called:
+
+Shuffle
+
+Shuffle is expensive because of:
+
+Network I/O
+Disk I/O
+Serialization
+Memory usage
+31. Narrow vs Wide Transformations
+Narrow transformation
+
+Data doesn't need significant movement between partitions.
+
+Examples:
+
+map()
+filter()
+
+Conceptually:
+
+Partition 1 → Partition 1
+Partition 2 → Partition 2
+Wide transformation
+
+Data needs to move between partitions.
+
+Examples:
+
+groupByKey()
+reduceByKey()
+join()
+distinct()
+
+Conceptually:
+
+Partition 1 ──┐
+Partition 2 ──┼──→ Shuffle
+Partition 3 ──┘
+Remember
+Narrow → little/no shuffle
+Wide   → shuffle
+32. reduceByKey() vs groupByKey()
+
+Suppose:
+
+data = [
+    ("A", 10),
+    ("A", 20),
+    ("B", 30)
+]
+groupByKey
+rdd.groupByKey()
+
+conceptually:
+
+A → [10, 20]
+B → [30]
+reduceByKey
+rdd.reduceByKey(lambda a, b: a + b)
+
+produces:
+
+A → 30
+B → 30
+Important
+
+reduceByKey() can perform local aggregation before shuffle.
+
+reduceByKey
+     ↓
+local combine
+     ↓
+less data shuffled
+     ↓
+better performance
+
+So generally:
+
+reduceByKey > groupByKey
+
+for aggregation tasks.
+
+33. Caching
+
+If you're going to reuse an RDD/DataFrame:
+
+df.cache()
+
+or:
+
+df.persist()
+
+Example:
+
+df.cache()
+
+df.filter(...).count()
+df.groupBy(...).count()
+df.select(...).show()
+
+Without caching:
+
+Computation
+ ↓
+again
+ ↓
+again
+ ↓
+again
+
+With caching:
+
+Computation
+ ↓
+CACHE
+ ↓
+reuse
+reuse
+reuse
+34. cache() vs persist()
+df.cache()
+
+is essentially a convenient persistence option.
+
+df.persist()
+
+allows different storage levels.
+
+Examples:
+
+MEMORY_ONLY
+MEMORY_AND_DISK
+DISK_ONLY
+35. Catalyst Optimizer
+
+Spark SQL uses the Catalyst Optimizer.
+
+Conceptually:
+
+SQL / DataFrame
+       ↓
+Logical Plan
+       ↓
+Catalyst Optimizer
+       ↓
+Optimized Plan
+       ↓
+Physical Plan
+       ↓
+Execution
+
+It optimizes the query before execution.
+
+36. Tungsten
+
+Tungsten is Spark's execution/memory optimization project.
+
+Focuses on things such as:
+
+Memory management
+CPU efficiency
+Binary processing
+Code generation
+
+Simple interview answer:
+
+Catalyst optimizes the query plan, while Tungsten focuses on efficient execution and memory/CPU utilization.
+
+37. DAG
+
+DAG = Directed Acyclic Graph
+
+Spark creates a DAG representing operations.
+
+Example:
+
+Read data
+    ↓
+Filter
+    ↓
+Map
+    ↓
+GroupBy
+    ↓
+Result
+
+Spark uses this plan to determine how to execute the job.
+
+38. Job → Stage → Task
+
+This hierarchy is extremely important.
+
+JOB
+ |
+ +------ STAGE
+ |         |
+ |         +--- TASK
+ |         +--- TASK
+ |
+ +------ STAGE
+           |
+           +--- TASK
+           +--- TASK
+Job
+
+Usually created by an action.
+
+Example:
+
+df.count()
+Stage
+
+A group of tasks separated by shuffle boundaries.
+
+Task
+
+Work performed on one partition.
+
+Remember:
+
+Action → Job
+Shuffle → Stage boundary
+Partition → Task
+39. Spark Performance Checklist
+
+When Spark is slow:
+
+1. Check partitions
+2. Check shuffle
+3. Avoid unnecessary collect()
+4. Filter early
+5. Select only required columns
+6. Use Parquet
+7. Avoid groupByKey when possible
+8. Cache reused data
+9. Check joins
+10. Use appropriate partitioning
+40. Filter Early
+
+Bad:
+
+df.select("*") \
+  .join(huge_df, "id") \
+  .filter(df.country == "India")
+
+Better conceptually:
+
+df.filter(df.country == "India") \
+  .join(huge_df, "id")
+
+Why?
+
+Filter first
+ ↓
+less data
+ ↓
+less shuffle
+ ↓
+less processing
+ ↓
+faster
+41. Select Only Required Columns
+
+Instead of:
+
+df.select("*")
+
+use:
+
+df.select(
+    "customer_id",
+    "name",
+    "salary"
+)
+
+Less data:
+
+Storage
+ ↓
+Network
+ ↓
+Memory
+ ↓
+Processing
+42. Broadcast Join
+
+If one table is small:
+
+from pyspark.sql.functions import broadcast
+
+df_large.join(
+    broadcast(df_small),
+    "id"
+)
+
+Instead of shuffling the small table around, Spark can distribute it to executors.
+
+Conceptually:
+
+Small table
+    ↓
+Broadcast
+ ↓   ↓   ↓
+E1  E2  E3
+
+Large data stays distributed
+
+Useful when one side of a join is genuinely small enough to broadcast.
+
+43. Data Lake
+
+A Data Lake stores large amounts of raw data.
+
+                 DATA LAKE
+                     |
+        ----------------------------
+        |            |             |
+       CSV          JSON         Parquet
+       Logs         Images       Tables
+
+Often stores:
+
+Raw data
+Processed data
+Historical data
+Structured + unstructured data
+44. Data Warehouse
+
+Data Warehouse is optimized for structured analytical queries.
+
+Examples conceptually:
+
+Data sources
+    ↓
+ETL/ELT
+    ↓
+Data Warehouse
+    ↓
+BI / Reports
+45. Data Lake vs Warehouse
+Data Lake	Data Warehouse
+Raw + processed	Mostly structured
+Flexible schema	Structured schema
+Cheap storage	More curated
+Data science	BI/analytics
+Schema-on-read	Schema-on-write
+46. ETL
+
+ETL = Extract → Transform → Load
+
+Source
+  ↓
+Extract
+  ↓
+Transform
+  ↓
+Load
+  ↓
+Data Warehouse
+
+Example:
+
+CSV
+ ↓
+Python/Spark
+ ↓
+Clean
+ ↓
+Transform
+ ↓
+Warehouse
+47. ELT
+
+ELT = Extract → Load → Transform
+
+Source
+ ↓
+Extract
+ ↓
+Load
+ ↓
+Warehouse/Lake
+ ↓
+Transform
+
+Modern cloud data platforms often use ELT heavily.
+
+48. Kafka
+
+Apache Kafka = distributed event streaming platform
+
+Conceptually:
+
+Producer
+   ↓
+Kafka Topic
+   ↓
+Partitions
+   ↓
+Consumer
+
+Example:
+
+IoT sensors
+    ↓
+Kafka
+    ↓
+Spark Streaming
+    ↓
+Database
+    ↓
+Dashboard
+49. Kafka Terminology
+Broker     → Kafka server
+Topic      → category of messages
+Partition  → ordered log inside topic
+Producer   → sends messages
+Consumer   → reads messages
+Consumer Group → group of consumers
+Offset     → position in partition
+50. Batch vs Streaming
+Batch
+
+Process accumulated data.
+
+Data
+ ↓
+Wait
+ ↓
+Process
+ ↓
+Result
+
+Example:
+
+Daily sales processing
+Streaming
+
+Process data continuously.
+
+Event
+ ↓
+Process
+ ↓
+Result
+ ↓
+Event
+ ↓
+Process
+
+Example:
+
+Real-time fraud detection
+51. Spark Structured Streaming
+
+Basic example:
+
+stream_df = spark.readStream \
+    .format("kafka") \
+    .option("kafka.bootstrap.servers", "...") \
+    .option("subscribe", "orders") \
+    .load()
+
+Then:
+
+query = stream_df.writeStream \
+    .format("console") \
+    .start()
+52. Delta Lake
+
+Delta Lake adds reliability/features on top of data lakes.
+
+Important concepts:
+
+ACID transactions
+Schema enforcement
+Schema evolution
+Time travel
+Updates
+Deletes
+MERGE
+
+Conceptually:
+
+Data Lake
+   +
+Delta
+   ↓
+Reliable data lake
+53. Common File Formats
+CSV
+JSON
+Avro
+Parquet
+ORC
+Delta
+Analytics preference
+
+Generally:
+
+Parquet / Delta
+      ↓
+Analytical workloads
+54. PySpark Functions You Should Know
+from pyspark.sql.functions import *
+
+Important:
+
+col()
+lit()
+when()
+otherwise()
+alias()
+
+sum()
+avg()
+min()
+max()
+count()
+
+upper()
+lower()
+trim()
+length()
+substring()
+
+concat()
+concat_ws()
+
+split()
+regexp_replace()
+
+year()
+month()
+day()
+datediff()
+
+row_number()
+rank()
+dense_rank()
+lag()
+lead()
+55. Common PySpark Pattern
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import *
+
+spark = SparkSession.builder \
+    .appName("BigData") \
+    .getOrCreate()
+
+df = spark.read.parquet("input.parquet")
+
+result = df \
+    .filter(col("salary") > 50000) \
+    .select(
+        "name",
+        "department",
+        "salary"
+    ) \
+    .groupBy("department") \
+    .agg(
+        avg("salary").alias("avg_salary")
+    )
+
+result.show()
+
+spark.stop()
+
+Memorize the structure, not every character:
+
+Create SparkSession
+       ↓
+Read data
+       ↓
+Transform
+       ↓
+Aggregate
+       ↓
+Write/show
+       ↓
+Stop Spark
+56. Big Data Interview Rapid-Fire
+What is Big Data?
+
+Large, complex, rapidly generated datasets requiring distributed processing/storage.
+
+What is Hadoop?
+
+An ecosystem for distributed storage and processing.
+
+What is HDFS?
+
+Distributed file system used by Hadoop.
+
+What is YARN?
+
+Resource management and job scheduling layer.
+
+What is Spark?
+
+Distributed computing engine.
+
+What is RDD?
+
+Resilient Distributed Dataset.
+
+What is DataFrame?
+
+Distributed tabular dataset with schema.
+
+Transformation?
+
+Lazy operation that creates a new dataset.
+
+Action?
+
+Operation that triggers execution and returns a result.
+
+Lazy evaluation?
+
+Spark delays execution until an action is called.
+
+What is shuffle?
+
+Movement of data between partitions/executors.
+
+Narrow transformation?
+
+Transformation that doesn't require significant data movement.
+
+Wide transformation?
+
+Transformation involving data movement/shuffle.
+
+What is DAG?
+
+Directed Acyclic Graph representing computation.
+
+Job?
+
+Execution triggered by an action.
+
+Stage?
+
+Set of tasks separated by shuffle boundaries.
+
+Task?
+
+Work performed for one partition.
+
+What is partition?
+
+Chunk of distributed data.
+
+Why Parquet?
+
+Columnar storage, compression, and efficient analytical queries.
+
+Why reduceByKey() over groupByKey()?
+
+reduceByKey() can combine data before shuffle, reducing data movement.
+
+🧠 The Big Data Map You Should Memorize
+                         BIG DATA
+                            |
+          -------------------------------------
+          |                                   |
+       HADOOP                              SPARK
+          |                                   |
+    -------------                  -----------------------
+    |     |     |                  |     |      |       |
+   HDFS  YARN MapReduce           SQL   RDD   Streaming MLlib
+    |
+    |
+Storage
+
+
+                     SPARK
+                       |
+                 SparkSession
+                       |
+                      Data
+                       |
+              -----------------
+              |               |
+            RDD           DataFrame
+              |               |
+      Transformations      Operations
+              |               |
+           Actions          Actions
+              |               |
+              ------- DAG -----
+                     |
+                   Jobs
+                     |
+                  Stages
+                     |
+                   Tasks
+                     |
+                Executors
+                     |
+                  Cluster
